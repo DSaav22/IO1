@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimización de Asignación de Aulas</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Sistema de Optimización de Asignación de Aulas</h1>
+        </header>
+
+        <main>
+            <section class="input-section">
+                <h2>Configuración del Modelo</h2>
+                <div class="form-group">
+                    <label for="threshold">Umbral de Subutilización (δ):</label>
+                    <input type="number" id="threshold" value="20" min="0" max="100" required>
+                    <span>%</span>
+                </div>
+                <div class="form-group">
+                    <label for="penalty">Factor de Penalización (λ):</label>
+                    <input type="number" id="penalty" value="1" min="0" step="0.1" required>
+                </div>
+            </section>
+
+            <section class="data-section">
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="aulas">Aulas</button>
+                    <button class="tab-btn" data-tab="grupos">Grupos</button>
+                    <button class="tab-btn" data-tab="horarios">Horarios</button>
+                </div>
+
+                <div class="tab-content" id="aulas-content">
+                    <h3>Aulas Disponibles</h3>
+                    <div class="aulas-grid" id="aulas-container">
+                        <!-- Se llenará dinámicamente -->
+                    </div>
+                </div>
+
+                <div class="tab-content hidden" id="grupos-content">
+                    <h3>Grupos de Estudiantes</h3>
+                    <div class="grupos-list" id="grupos-container">
+                        <!-- Se llenará dinámicamente -->
+                    </div>
+                </div>
+
+                <div class="tab-content hidden" id="horarios-content">
+                    <h3>Horarios Disponibles</h3>
+                    <div class="horarios-list" id="horarios-container">
+                        <!-- Se llenará dinámicamente -->
+                    </div>
+                </div>
+            </section>
+
+            <section class="results-section">
+                <h2>Resultados de la Optimización</h2>
+                <button id="optimize-btn" class="primary-btn">Optimizar Asignación</button>
+                <div id="results-container" class="hidden">
+                    <div class="results-grid">
+                        <!-- Se llenará con los resultados -->
+                    </div>
+                    <div class="metrics">
+                        <h3>Métricas de Utilización</h3>
+                        <div id="metrics-container">
+                            <!-- Se llenará con las métricas -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="milp.js"></script>
+    <script src="script.js"></script>
+</body>
+</html> 
