@@ -36,19 +36,45 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadDemoData() {
         const demoAulas = [
             { id: 'A-101', capacidad: 30 },
-            { id: 'B-203', capacidad: 45 },
-            { id: 'C-Lab', capacidad: 25 },
-            { id: 'D-Aud', capacidad: 150 },
-            { id: 'E-105', capacidad: 50 }
+            { id: 'A-102', capacidad: 35 },
+            { id: 'A-201', capacidad: 25 },
+            { id: 'A-205', capacidad: 40 },
+            { id: 'B-110', capacidad: 50 },
+            { id: 'B-112', capacidad: 50 },
+            { id: 'B-220', capacidad: 45 },
+            { id: 'B-301', capacidad: 20 },
+            { id: 'C-LAB1 (Cómputo)', capacidad: 22 },
+            { id: 'C-LAB2 (Física)', capacidad: 28 },
+            { id: 'D-100 (Aud. Menor)', capacidad: 80 },
+            { id: 'D-200 (Aud. Principal)', capacidad: 180 },
+            { id: 'E-101', capacidad: 60 },
+            { id: 'E-SUM', capacidad: 75 },
+            { id: 'F-105', capacidad: 30 },
+            { id: 'F-106', capacidad: 35 }
         ];
         const demoGrupos = [
-            { nombre: 'Cálculo I', estudiantes: 42 },
-            { nombre: 'Física II', estudiantes: 38 },
-            { nombre: 'IA Aplicada', estudiantes: 22 },
-            { nombre: 'Historia del Arte', estudiantes: 28 },
-            { nombre: 'Redes Neuronales', estudiantes: 48 },
-            { nombre: 'Seminario Tesis', estudiantes: 15 },
-            { nombre: 'Termodinámica', estudiantes: 55 } // Este grupo no debería poder asignarse a la mayoría
+            { nombre: 'Cálculo I', estudiantes: 120 },
+            { nombre: 'Álgebra Lineal', estudiantes: 78 },
+            { nombre: 'Intro. a la Programación', estudiantes: 75 },
+            { nombre: 'Física General', estudiantes: 60 },
+            { nombre: 'Química Orgánica', estudiantes: 55 },
+            { nombre: 'Estructuras de Datos', estudiantes: 49 },
+            { nombre: 'Bases de Datos', estudiantes: 44 },
+            { nombre: 'Termodinámica', estudiantes: 48 },
+            { nombre: 'Historia del Arte Moderno', estudiantes: 38 },
+            { nombre: 'Literatura Comparada', estudiantes: 33 },
+            { nombre: 'Filosofía Antigua', estudiantes: 30 },
+            { nombre: 'Redes de Computadoras', estudiantes: 34 },
+            { nombre: 'Sistemas Operativos', estudiantes: 40 },
+            { nombre: 'Inteligencia Artificial', estudiantes: 28 },
+            { nombre: 'Taller de Robótica', estudiantes: 21 },
+            { nombre: 'Cálculo Avanzado', estudiantes: 24 },
+            { nombre: 'Geometría Diferencial', estudiantes: 20 },
+            { nombre: 'Seminario de Tesis I', estudiantes: 18 },
+            { nombre: 'Econometría', estudiantes: 26 },
+            { nombre: 'Marketing Digital', estudiantes: 32 },
+            { nombre: 'Fotografía Básica', estudiantes: 22 },
+            { nombre: 'Macroeconomía I', estudiantes: 190 } // Grupo imposible
         ];
         aulas = demoAulas;
         grupos = demoGrupos;
