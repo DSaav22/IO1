@@ -1,86 +1,117 @@
-# Sistema de Optimización de Asignación de Aulas
+# OptiAulas - Optimizador de Horarios Académicos
 
-Un sistema web front-end para asignar aulas a grupos de estudiantes de forma óptima, basado en un modelo de optimización heurístico. La aplicación busca maximizar la cantidad de estudiantes asignados mientras penaliza la subutilización de los espacios.
------
-
-## 📋 Sobre el Proyecto
-
-Este proyecto es una aplicación web del lado del cliente (frontend) diseñada para resolver el complejo problema de la asignación de horarios y aulas en una institución educativa. Utiliza un algoritmo de optimización para encontrar una solución que no solo cumpla con las restricciones básicas (como la capacidad del aula), sino que también busque la eficiencia en el uso de los recursos.
-
-La lógica de optimización se ejecuta completamente en el navegador del usuario, sin necesidad de un backend.
-
------
+**OptiAulas** es una aplicación web full-stack diseñada para resolver el complejo problema de la asignación de recursos académicos. Utiliza un potente motor de optimización matemática para generar horarios ideales que maximizan el uso de las aulas y respetan una variedad de reglas y restricciones configurables.
 
 ## ✨ Características Principales
 
-  - **Asignación Inteligente:** Asigna automáticamente grupos de estudiantes a aulas y horarios disponibles.
-  - **Optimización de Recursos:** El algoritmo busca maximizar el número de estudiantes asignados y penaliza las aulas que quedan con demasiados asientos vacíos.
-  - **Parámetros Configurables:** Permite al usuario ajustar el **Umbral de Subutilización (δ)** y el **Factor de Penalización (λ)** para afinar los resultados del modelo.
-  - **Interfaz Clara y Tabulada:** Muestra los datos de Aulas, Grupos y Horarios de forma organizada.
-  - **Visualización de Resultados:** Presenta la solución final en tarjetas fáciles de leer, mostrando la utilización de cada aula asignada.
-  - **Métricas de Rendimiento:** Calcula y muestra métricas clave como la utilización promedio, el total de aulas usadas y el número de estudiantes asignados.
-  - **Persistencia de Datos:** Guarda la última optimización realizada en el `localStorage` del navegador para que los resultados no se pierdan al recargar la página.
-  - **Exportación a CSV:** Permite descargar los resultados de la asignación en un archivo `.csv` para su uso en otras aplicaciones como Excel.
+  * **Gestión de Datos Dinámica:** Añade, edita y elimina aulas y grupos de estudiantes directamente desde la interfaz.
+  * **Motor de Optimización Avanzado:** Utiliza **Google OR-Tools (CP-SAT Solver)** para encontrar la solución óptima, no solo una "buena" solución.
+  * **Parámetros Configurables:** Ajusta el **Umbral de Subutilización (δ)** y el **Factor de Penalización (λ)** para influir en las decisiones del optimizador.
+  * **Visualización de Resultados Interactiva:**
+      * **Horario Visual:** Un grid con códigos de color para entender la calidad de la asignación de un vistazo.
+      * **Tabla de Asignaciones:** Todos los detalles de cada clase asignada.
+      * **Métricas de Rendimiento (KPIs):** Analiza la eficiencia del horario generado (utilización promedio, penalización total, etc.).
+      * **Explicación del Modelo:** Una pestaña dedicada que explica cómo funciona el motor de optimización.
+  * **Interfaz Moderna y Responsiva:** Construida con Bootstrap 5 para una experiencia de usuario fluida en cualquier dispositivo.
 
------
+## 🛠️ Stack Tecnológico
 
-## 🛠️ Tecnologías Utilizadas
+  * **Backend:**
+      * **Python 3:** Lenguaje principal.
+      * **FastAPI:** Framework web de alto rendimiento para la API.
+      * **Uvicorn:** Servidor ASGI para correr la aplicación.
+      * **Google OR-Tools:** Biblioteca para la lógica de optimización por restricciones.
+  * **Frontend:**
+      * **HTML5**
+      * **CSS3**
+      * **JavaScript (Vanilla JS):** Para toda la lógica de la interfaz y la comunicación con la API.
+      * **Bootstrap 5:** Framework para el diseño y la responsividad.
 
-  - **HTML5:** Para la estructura de la página.
-  - **CSS3:** Para los estilos y el diseño visual (el archivo `styles.css` no se incluye en este repositorio, pero es parte del proyecto).
-  - **JavaScript (Vanilla):** Para toda la lógica de la aplicación, manipulación del DOM y el algoritmo de optimización. No se utilizaron frameworks externos.
-
------
-
-## 🚀 ¿Cómo Usarlo?
-
-Este proyecto no requiere ninguna instalación ni servidor. Para ejecutarlo localmente, solo sigue estos pasos:
-
-1.  **Clona o descarga el repositorio:**
-    ```sh
-    git clone https://github.com/tu-usuario/tu-repositorio.git
-    ```
-2.  **Navega a la carpeta del proyecto:**
-    ```sh
-    cd tu-repositorio
-    ```
-3.  **Abre el archivo `index.html` en tu navegador web preferido (como Chrome, Firefox, etc.).**
-
-¡Y listo\! La aplicación se ejecutará localmente en tu navegador.
-
------
-
-## 🧠 ¿Cómo Funciona el Optimizador?
-
-El núcleo de la aplicación reside en la clase `OptimizadorMILP` (en `milp.js`), que aunque su nombre sugiere Programación Lineal Entera Mixta, en realidad implementa un **algoritmo heurístico de búsqueda local** similar a *Hill Climbing*.
-
-1.  **Generación de Solución Inicial:**
-
-      - Primero, los grupos se ordenan de mayor a menor según el número de estudiantes. Esto es crucial para dar prioridad a los grupos más difíciles de ubicar.
-      - Luego, el algoritmo itera sobre los grupos ordenados y los asigna a la primera combinación `aula-horario` válida que encuentra.
-
-2.  **Proceso de Optimización:**
-
-      - Se parte de la solución inicial.
-      - El algoritmo entra en un bucle que se repite un número determinado de veces (`maxIteraciones`).
-      - En cada iteración, intenta realizar una pequeña modificación a la solución actual (por ejemplo, cambiar un grupo a una nueva aula u horario) para generar una solución "vecina".
-      - Evalúa esta nueva solución con una **función objetivo** que calcula un puntaje basado en los estudiantes asignados menos una penalización por las aulas subutilizadas.
-      - Si la nueva solución tiene un puntaje más alto, se convierte en la solución actual y el proceso continúa.
-
-3.  **Resultado Final:**
-
-      - Después de todas las iteraciones, el sistema devuelve la mejor solución encontrada durante todo el proceso.
-
------
-
-## 📂 Estructura de Archivos
+## 📁 Estructura del Proyecto
 
 ```
-.
-├── index.html         # Archivo principal de la página
-├── script.js          # Lógica del DOM, datos y eventos
-├── milp.js            # Clase y lógica del optimizador
-└── styles.css         # Estilos visuales de la aplicación
+/OptiAulas
+│
+├── main.py             # Script del backend con FastAPI y la lógica de optimización.
+├── index.html          # Archivo principal de la interfaz de usuario.
+├── main.js             # Lógica del frontend (manipulación del DOM, llamadas a la API).
+├── requirements.txt    # Dependencias de Python para el backend.
+└── README.md           # Este archivo.
 ```
 
------
+## 🚀 Instalación y Ejecución
+
+Sigue estos pasos para ejecutar el proyecto en tu máquina local.
+
+### Prerrequisitos
+
+  * Python 3.8 o superior.
+  * `pip` (manejador de paquetes de Python).
+
+### 1\. Clonar el Repositorio
+
+```bash
+git clone https://github.com/tu-usuario/OptiAulas.git
+cd OptiAulas
+```
+
+### 2\. Configurar el Backend
+
+Es altamente recomendable usar un entorno virtual.
+
+```bash
+# Crear un entorno virtual
+python -m venv venv
+
+# Activar el entorno virtual
+# En Windows:
+.\venv\Scripts\activate
+# En macOS/Linux:
+source venv/bin/activate
+
+# Instalar las dependencias de Python
+pip install -r requirements.txt
+```
+
+*(Asegúrate de que tu archivo `requirements.txt` contenga lo siguiente:)*
+
+```
+fastapi
+uvicorn[standard]
+ortools
+```
+
+### 3\. Ejecutar la Aplicación
+
+Una vez instaladas las dependencias, inicia el servidor desde la terminal:
+
+```bash
+# El comando 'uvicorn' iniciará el servidor.
+# 'main:app' le dice que busque el objeto 'app' en el archivo 'main.py'.
+# '--reload' reinicia el servidor automáticamente cuando detecta cambios en el código.
+uvicorn main:app --reload
+```
+
+### 4\. Acceder a la Aplicación
+
+Abre tu navegador web y navega a la siguiente dirección:
+
+**[enlace sospechoso eliminado]**
+
+¡Listo\! La aplicación OptiAulas debería estar funcionando en tu máquina.
+
+## 💡 Cómo Usar
+
+1.  **Añade Aulas y Grupos:** Utiliza los formularios de la izquierda para poblar los datos iniciales.
+2.  **Ajusta los Parámetros:** Modifica los valores de `δ` y `λ` en la sección de configuración para definir qué tan estricto quieres que sea el optimizador con el espacio vacío.
+3.  **Optimiza:** Haz clic en el botón **"Optimizar Horario"**.
+4.  **Analiza los Resultados:** Explora las diferentes pestañas de resultados para entender el horario generado. Si quieres saber más sobre el proceso, ¡no te pierdas la pestaña **"¿Cómo funciona?"**\!
+
+## 🔭 Posibles Mejoras a Futuro
+
+  - [ ] Implementar el modelo de penalización completo en la función objetivo del solver.
+  - [ ] Permitir la importación y exportación de datos desde/hacia archivos CSV o Excel.
+  - [ ] Añadir restricciones adicionales (ej. disponibilidad de profesores, equipamiento de aulas).
+  - [ ] Integrar una base de datos (como SQLite o PostgreSQL) para persistir los datos.
+  - [ ] Añadir un sistema de autenticación de usuarios.
+
