@@ -49,6 +49,11 @@ Sigue estos pasos para ejecutar el proyecto en tu máquina local.
 
 * Python 3.8 o superior.
 * `pip` (manejador de paquetes de Python).
+* **Para usuarios de Windows con PowerShell:** La política de ejecución de scripts de PowerShell podría estar deshabilitada por defecto. Si al activar el entorno virtual obtienes un error como `"No se puede cargar el archivo ... Activate.ps1 porque la ejecución de scripts está deshabilitada en este sistema."`, deberás ajustar la política:
+    1.  Abre PowerShell **como Administrador**.
+    2.  Ejecuta: `Set-ExecutionPolicy RemoteSigned`
+    3.  Confirma con `S` (o `Y`) y presiona Enter.
+    4.  Puedes cerrar la ventana de administrador y continuar con los pasos normales. (Por seguridad, si lo deseas, puedes revertir a `Set-ExecutionPolicy Restricted` después de terminar de trabajar, aunque `RemoteSigned` es común para desarrollo).
 
 **1. Clonar el Repositorio**
 
@@ -68,8 +73,8 @@ python -m venv venv
 # Activar el entorno virtual
 # En Windows (PowerShell):
 . .\venv\Scripts\Activate.ps1
-# O si lo anterior no funciona en PowerShell (menos común):
-& ".\venv\Scripts\Activate.ps1"
+# Si lo anterior no funciona en PowerShell (menos común):
+# & ".\venv\Scripts\Activate.ps1"
 
 # En macOS/Linux:
 source venv/bin/activate
