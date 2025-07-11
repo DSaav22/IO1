@@ -1,10 +1,3 @@
-¡Claro que sí\! Con gusto actualizo el `README.md`.
-
-El único ajuste pendiente y necesario era reemplazar `[enlace sospechoso eliminado]` con la URL real de tu aplicación local.
-
-Aquí tienes el `README.md` actualizado:
-
-```markdown
 # OptiAulas - Optimizador de Horarios Académicos
 
 OptiAulas es una aplicación web full-stack diseñada para resolver el complejo problema de la asignación de recursos académicos. Utiliza un potente motor de optimización matemática para generar horarios ideales que maximizan el uso de las aulas y respetan una variedad de reglas y restricciones configurables.
@@ -128,6 +121,3 @@ Abre tu navegador web y navega a la siguiente dirección:
   * Añadir un sistema de autenticación de usuarios.
 
 <!-- end list -->
-
-```
-```
