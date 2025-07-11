@@ -4,25 +4,94 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OptiAulas - Optimizador de Horarios</title>
-    <!-- Bootstrap 5.3 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         body { background-color: #f8f9fa; }
         .container { max-width: 1400px; }
         .card-header { font-weight: 500; }
         .table-sm th, .table-sm td { padding: 0.4rem; }
-        #visual-schedule-grid .cell {
+        
+        /* Contenedor principal para el horario visual */
+        .schedule-grid-container {
+            width: 100%;
+            overflow-x: auto; /* Permite desplazamiento horizontal si hay muchos horarios */
+            border: 1px solid #dee2e6;
+            border-radius: 0.3rem;
+        }
+
+        /* Estilos para la cuadrícula CSS real */
+        #visual-schedule-grid {
+            display: grid;
+            /* La primera columna es para los nombres de las aulas, el resto para los horarios */
+            /* Se define con minmax para asegurar que las aulas tengan espacio y el resto sea equitativo */
+            grid-template-columns: minmax(120px, 1fr) repeat(var(--num-time-slots), minmax(100px, 1fr));
+            border-collapse: collapse; /* Para que los bordes de las celdas se junten */
+            width: fit-content; /* Ajusta el ancho al contenido para el overflow-x */
+            min-width: 100%; /* Pero asegúrate de que no sea más pequeño que el contenedor si cabe */
+        }
+
+        /* Estilos generales para todas las celdas de la cuadrícula */
+        #visual-schedule-grid .grid-cell {
             min-height: 60px;
             font-size: 0.85rem;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
-            border: 1px solid #dee2e6;
-            background-color: #e9ecef; /* Gris por defecto */
+            border: 1px solid #dee2e6; /* Borde estándar para todas las celdas */
+            background-color: #f8f9fa; /* Fondo por defecto */
+            padding: 5px;
+            box-sizing: border-box;
         }
+
+        /* Encabezados de la cuadrícula (horarios y aula) */
+        #visual-schedule-grid .header-cell {
+            background-color: #e9ecef;
+            font-weight: bold;
+            color: #343a40;
+            border-bottom: 2px solid #dee2e6; /* Línea más gruesa debajo de los headers */
+        }
+
+        #visual-schedule-grid .header-time { /* Encabezados de horario */
+            border-left: 1px solid #dee2e6; /* Borde a la izquierda para separar */
+        }
+
+        #visual-schedule-grid .header-aula { /* Encabezados de aula */
+            border-right: 2px solid #dee2e6; /* Línea más gruesa a la derecha */
+        }
+
+        /* Celdas con asignaciones (contenido del horario) */
+        #visual-schedule-grid .assignment-cell {
+            border: 1px solid #ced4da;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+        }
+        #visual-schedule-grid .assignment-cell strong {
+            font-size: 0.9em;
+        }
+        #visual-schedule-grid .assignment-cell small {
+            font-size: 0.75em;
+            color: rgba(0,0,0,0.6);
+        }
+        /* Ajuste para texto blanco en fondos oscuros */
+        #visual-schedule-grid .assignment-cell.text-white small {
+            color: rgba(255,255,255,0.8);
+        }
+
+        /* Colores de las celdas de asignación basados en la utilización */
+        .bg-success { background-color: #198754 !important; } /* Verde intenso: Muy alta utilización (>=90%) */
+        .bg-success-subtle { background-color: #d1e7dd !important; } /* Verde claro: Utilización óptima (dentro del umbral delta) */
+        .bg-warning-subtle { background-color: #fff3cd !important; } /* Amarillo claro: Utilización media-baja (>=50% y < umbral delta) */
+        .bg-danger-subtle { background-color: #f8d7da !important; } /* Rojo claro: Muy baja utilización (<50%) */
+        
+        /* Estilo para celdas vacías */
+        #visual-schedule-grid .empty-cell {
+            background-color: #f0f2f5;
+            border: 1px dashed #ced4da; /* Borde punteado para indicar vacío */
+        }
+
+        /* Estilos para KPIs y otros elementos ya existentes */
         .kpi-card { text-align: center; }
         .kpi-card .value { font-size: 2rem; font-weight: bold; }
         .kpi-card .label { font-size: 1rem; color: #6c757d; }
@@ -36,9 +105,7 @@
     </header>
 
     <main class="container">
-        <!-- Fila Principal: Entradas y Parámetros -->
         <div class="row g-4">
-            <!-- Columna 1: Gestión de Datos -->
             <div class="col-lg-7">
                 <div class="card shadow-sm">
                     <div class="card-header bg-white">
@@ -46,7 +113,6 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <!-- Aulas -->
                             <div class="col-md-6">
                                 <h5>Aulas</h5>
                                 <form id="form-add-aula">
@@ -65,11 +131,9 @@
                                         </tr>
                                     </thead>
                                     <tbody id="aulas-table-body">
-                                        <!-- Las filas de aulas se insertarán aquí -->
-                                    </tbody>
+                                        </tbody>
                                 </table>
                             </div>
-                            <!-- Grupos -->
                             <div class="col-md-6">
                                 <h5>Grupos</h5>
                                 <form id="form-add-grupo">
@@ -88,8 +152,7 @@
                                         </tr>
                                     </thead>
                                     <tbody id="grupos-table-body">
-                                        <!-- Las filas de grupos se insertarán aquí -->
-                                    </tbody>
+                                        </tbody>
                                 </table>
                             </div>
                         </div>
@@ -97,9 +160,7 @@
                 </div>
             </div>
 
-            <!-- Columna 2: Parámetros y Acción -->
             <div class="col-lg-5">
-                <!-- Parámetros -->
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-white">
                         <i class="bi bi-sliders"></i> Configuración de Parámetros
@@ -115,7 +176,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- Acción -->
                 <div class="d-grid gap-2">
                     <button id="optimize-button" class="btn btn-primary btn-lg shadow">
                         <i class="bi bi-magic"></i> Optimizar Horario
@@ -124,10 +184,8 @@
             </div>
         </div>
 
-        <!-- Fila de Alertas -->
         <div id="alerts-container" class="my-3"></div>
         
-        <!-- Fila de Resultados -->
         <div class="row mt-4">
             <div class="col-12">
                 <div class="card shadow-sm">
@@ -135,7 +193,6 @@
                         <i class="bi bi-bar-chart-line-fill"></i> Panel de Resultados
                     </div>
                     <div class="card-body" id="results-panel" style="min-height: 200px;">
-                        <!-- El contenido se genera dinámicamente -->
                         <div class="text-center text-muted p-5">
                             <h4><i class="bi bi-clock-history"></i> Esperando optimización</h4>
                             <p>Configure sus datos y presione 'Optimizar' para generar el horario perfecto.</p>
@@ -146,7 +203,6 @@
         </div>
     </main>
 
-    <!-- Modal de Confirmación de Eliminación -->
     <div class="modal fade" id="delete-confirm-modal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -165,11 +221,7 @@
         </div>
     </div>
     
-    <!-- Bootstrap 5.3 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <!-- Popper.js (para tooltips de Bootstrap) -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
-    <!-- main.js -->
     <script src="main.js"></script>
 </body>
-</html> 
+</html>

@@ -1,7 +1,7 @@
 /**
  * OptiAulas Frontend Logic
  * Arquitecto: Senior Full-Stack AI
- * Fecha: 2024-05-20
+ * Fecha: 2024-05-20 (Actualizado: 2025-07-10 - Rediseño Horario Visual)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -10,8 +10,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const API_URL = 'http://127.0.0.1:8000/api/v1/optimize';
     let aulas = [];
     let grupos = [];
+    // Definición de horarios fijos para la cuadrícula
     const horarios = ['08:00-10:00', '10:00-12:00', '12:00-14:00', '14:00-16:00', '16:00-18:00'];
-    let deleteCallback = null;
+    let deleteCallback = null; // Función para manejar la eliminación confirmada desde el modal
 
     // --- DOM Element References ---
     const aulasTbody = document.getElementById('aulas-table-body');
@@ -73,7 +74,6 @@ document.addEventListener('DOMContentLoaded', () => {
             { nombre: 'Seminario de Tesis I', estudiantes: 18 },
             { nombre: 'Econometría', estudiantes: 26 },
             { nombre: 'Marketing Digital', estudiantes: 32 },
-            { nombre: 'Fotografía Básica', estudiantes: 22 },
             { nombre: 'Macroeconomía I', estudiantes: 190 } // Grupo imposible
         ];
         aulas = demoAulas;
@@ -148,12 +148,12 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const nombreInput = document.getElementById('grupo-nombre');
         const estudiantesInput = document.getElementById('grupo-estudiantes');
-        
+
         if (grupos.some(g => g.nombre === nombreInput.value.trim())) {
             showAlert(`El grupo con nombre "${nombreInput.value}" ya existe.`, 'warning');
             return;
         }
-        
+
         grupos.push({
             nombre: nombreInput.value.trim(),
             estudiantes: parseInt(estudiantesInput.value)
@@ -194,7 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showAlert("Debe haber al menos un aula y un grupo para optimizar.", "warning");
             return;
         }
-        
+
         const maxCapacidad = Math.max(...aulas.map(a => a.capacidad));
         const gruposImposibles = grupos.filter(g => g.estudiantes > maxCapacidad);
 
@@ -214,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         setLoadingState(true);
-        
+
         try {
             const response = await fetch(API_URL, {
                 method: 'POST',
@@ -256,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
             optimizeButton.innerHTML = '<i class="bi bi-magic"></i> Optimizar Horario';
         }
     }
-    
+
     // --- Results Rendering ---
 
     /**
@@ -266,7 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderResults(resultData) {
         // Desempaquetamos los datos, incluyendo los parámetros usados que ahora enviaremos desde el backend
         const { asignaciones, metricas, grupos_no_asignados, parametros_usados } = resultData;
-    
+
         resultsPanel.innerHTML = `
             <ul class="nav nav-tabs" id="resultsTab" role="tablist">
                 <li class="nav-item" role="presentation">
@@ -289,22 +289,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="tab-pane fade p-3" id="process-content" role="tabpanel"></div>
             </div>
         `;
-    
-        // Llamadas a las funciones de renderizado existentes
+
+        // Llamadas a las funciones de renderizado
         document.getElementById('visual-content').innerHTML = renderVisualSchedule(asignaciones);
         document.getElementById('table-content').innerHTML = renderAssignmentsTable(asignaciones);
         document.getElementById('metrics-content').innerHTML = renderMetrics(metricas, grupos_no_asignados);
-    
-        // ¡Nueva llamada!
         document.getElementById('process-content').innerHTML = renderOptimizationProcess(parametros_usados);
-    
-        // Habilitar tooltips
+
+        // Habilitar tooltips después de que el contenido se haya renderizado
         const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
         tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl, { html: true });
         });
     }
-    
+
     /**
      * Resetea el panel de resultados a su estado inicial.
      */
@@ -317,50 +315,76 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Genera el HTML para la cuadrícula del horario visual.
+     * Genera el HTML para la cuadrícula del horario visual con el nuevo diseño.
      * @param {Array} asignaciones - La lista de asignaciones.
      * @returns {string} El HTML de la cuadrícula.
      */
     function renderVisualSchedule(asignaciones) {
         if (aulas.length === 0) return '<p class="text-center">No hay aulas para mostrar.</p>';
 
-        let gridHtml = '<div class="table-responsive"><div id="visual-schedule-grid" class="d-grid" style="--bs-columns: ' + (horarios.length + 1) + ';">';
-        // Headers (horarios)
-        gridHtml += '<div></div>'; // Esquina vacía
-        horarios.forEach(h => gridHtml += `<div class="fw-bold text-center p-2 small">${h}</div>`);
+        const sortedAulas = [...aulas].sort((a, b) => a.id.localeCompare(b.id));
+        const numTimeSlots = horarios.length;
+
+        let gridHtml = `
+            <div class="schedule-grid-container">
+                <div id="visual-schedule-grid" style="--num-time-slots: ${numTimeSlots};">
+        `;
         
-        // Filas (aulas)
-        const sortedAulas = [...aulas].sort((a,b) => a.id.localeCompare(b.id));
+        // Primera celda vacía en la esquina superior izquierda
+        gridHtml += '<div class="grid-cell header-cell"></div>'; 
+        
+        // Encabezados de horario
+        horarios.forEach(h => {
+            gridHtml += `<div class="grid-cell header-cell header-time">${h}</div>`;
+        });
+
+        // Filas para cada aula
         sortedAulas.forEach(aula => {
-            gridHtml += `<div class="fw-bold text-center p-2 small">${aula.id}</div>`; // Header de aula
+            gridHtml += `<div class="grid-cell header-cell header-aula">${aula.id} (${aula.capacidad})</div>`; // Encabezado de aula
             horarios.forEach(horario => {
                 const asignacion = asignaciones.find(a => a.aula === aula.id && a.horario === horario);
                 if (asignacion) {
                     const delta = parseFloat(deltaSlider.value) / 100;
                     let colorClass = '';
-                    if (asignacion.utilizacion > 90) {
-                        colorClass = 'bg-success text-white'; // Verde Intenso
-                    } else if (asignacion.utilizacion >= (1 - delta) * 100) {
-                        colorClass = 'bg-success-subtle'; // Verde Claro
-                    } else {
-                        colorClass = 'bg-warning-subtle'; // Amarillo
+                    let textColorClass = ''; 
+
+                    // Lógica de colores basada en la utilización
+                    if (asignacion.utilizacion >= 90) { // Muy alta utilización (casi llena)
+                        colorClass = 'bg-success';
+                        textColorClass = 'text-white';
+                    } else if (asignacion.utilizacion >= (1 - delta) * 100) { // Utilización óptima (dentro del umbral)
+                        colorClass = 'bg-success-subtle';
+                        textColorClass = '';
+                    } else if (asignacion.utilizacion >= 50) { // Utilización media-baja
+                        colorClass = 'bg-warning-subtle';
+                        textColorClass = '';
+                    } else { // Muy baja utilización
+                        colorClass = 'bg-danger-subtle';
+                        textColorClass = '';
                     }
+                    
+                    // Contenido del tooltip con detalles de la asignación
                     const tooltipContent = `
                         <strong>Grupo:</strong> ${asignacion.grupo}<br>
                         <strong>Nº Est.:</strong> ${asignacion.estudiantes}<br>
-                        <strong>Aula:</strong> ${asignacion.aula} (${asignacion.capacidad})<br>
+                        <strong>Aula:</strong> ${asignacion.aula} (Cap.: ${asignacion.capacidad})<br>
+                        <strong>Horario:</strong> ${asignacion.horario}<br>
                         <strong>Utilización:</strong> ${asignacion.utilizacion}%<br>
-                        <strong>Penalización:</strong> ${asignacion.penalizacion_aplicada}
+                        <strong>Penalización Aplicada:</strong> ${asignacion.penalizacion_aplicada}
                     `;
-                    gridHtml += `<div class="cell ${colorClass}" data-bs-toggle="tooltip" data-bs-placement="top" title="${tooltipContent}">
-                                    <strong>${asignacion.grupo}</strong>
-                                 </div>`;
+                    gridHtml += `
+                        <div class="grid-cell assignment-cell ${colorClass} ${textColorClass}"
+                             data-bs-toggle="tooltip" data-bs-placement="top" title="${tooltipContent}">
+                             <small class="fw-bold">${asignacion.grupo}</small>
+                             <br>
+                             <small style="font-size: 0.7em;">(${asignacion.estudiantes} est.)</small>
+                        </div>`;
                 } else {
-                    gridHtml += '<div class="cell"></div>'; // Celda vacía
+                    gridHtml += '<div class="grid-cell empty-cell"></div>'; // Celda vacía con estilo distintivo
                 }
             });
         });
-        gridHtml += '</div></div>';
+        gridHtml += '</div></div>'; // Cierra visual-schedule-grid y schedule-grid-container
         return gridHtml;
     }
     
@@ -495,7 +519,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <p>Estas son las reglas inquebrantables que el modelo debe seguir:</p>
             <ul>
                 <li><strong>Unicidad de Grupo:</strong> Un grupo solo puede ser asignado a una única aula y horario. No puede estar en dos sitios a la vez.</li>
-                <li><strong>Exclusividad de Aula:</strong> Un aula en un horario específico solo puede ser ocupada por un único grupo.</li>
+                <li><strong>Exclusividad de Aula:</strong> Un aula en un horario específico solo puede ser ocupada por como máximo un grupo.</li>
                 <li><strong>Capacidad Mínima:</strong> Un grupo solo puede ser asignado a un aula si su número de estudiantes es menor o igual a la capacidad del aula.</li>
             </ul>
 
@@ -559,6 +583,7 @@ document.addEventListener('DOMContentLoaded', () => {
         deltaValueSpan.textContent = `${e.target.value}%`;
     });
 
+    // Delegación de eventos para botones de eliminar en las tablas
     [aulasTbody, gruposTbody].forEach(tbody => {
         tbody.addEventListener('click', (e) => {
             const deleteButton = e.target.closest('button.btn-danger');
@@ -581,4 +606,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Initial Execution ---
     loadDemoData();
-}); 
+});
